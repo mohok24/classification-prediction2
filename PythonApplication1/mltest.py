@@ -10,19 +10,16 @@ from keras.models import load_model
 df = pd.read_csv('preprocessed_data.csv')
 df1, df2 = np.array_split(df, 2)
 
-# Tokenize input sequences
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(df1['text'])
 input_sequences = tokenizer.texts_to_sequences(df1['text'])
 max_sequence_length = max(len(seq) for seq in input_sequences)
 input_sequences_padded = pad_sequences(input_sequences, maxlen=max_sequence_length)
 
-# Prepare target sequences
 target_sequences = tokenizer.texts_to_sequences(df1['label'])  
 target_sequences_padded = pad_sequences(target_sequences, maxlen=max_sequence_length)
 vocab_size = len(tokenizer.word_index) + 1  
 
-# Define the model architecture
 inputs = Input(shape=(max_sequence_length,))
 embedding_dim = 100
 embedding_layer = Embedding(input_dim=vocab_size, output_dim=embedding_dim)(inputs)
@@ -37,9 +34,7 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 model.fit(input_sequences_padded, to_categorical(target_sequences_padded, num_classes=vocab_size),
           epochs=1, batch_size=10, validation_split=0.2)
 
-# Save the model
 model.save("my_model_bidirectional_lstm.h5")
-#model=load_model("my_model.h5")
 def generate_hints(input_text, top_n=3):
     input_sequence = tokenizer.texts_to_sequences([input_text])
     input_sequence = [word for word in input_sequence[0] if word != "'"]
